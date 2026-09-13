@@ -93,6 +93,8 @@
   }
   input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   button {
+    appearance: none;
+    -webkit-appearance: none;
     background: var(--bg-soft);
     color: var(--accent);
     border: 1px solid var(--line);
@@ -101,8 +103,11 @@
     font-weight: 600;
     cursor: pointer;
     font-size: 0.95rem;
+    box-shadow: none;
+    outline: none;
   }
   button:hover { border-color: var(--accent); }
+  button:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 
   h2 { font-size: 1.2rem; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
 
