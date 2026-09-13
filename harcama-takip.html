@@ -51,6 +51,10 @@
   h1 { font-size: 2rem; margin-bottom: 8px; }
   .sub { color: var(--muted); margin-bottom: 32px; max-width: 55ch; }
 
+  .filter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .filter-label { color: var(--muted); font-size: 0.9rem; }
+  #month-filter { min-width: 160px; }
+
   .summary {
     background: var(--card);
     border: 1px solid var(--line);
@@ -74,7 +78,7 @@
     padding: 20px;
     margin-bottom: 28px;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr auto;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
     gap: 10px;
   }
   form label { display: none; }
@@ -89,16 +93,16 @@
   }
   input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   button {
-    background: var(--accent);
-    color: #0b0f14;
-    border: none;
+    background: var(--bg-soft);
+    color: var(--accent);
+    border: 1px solid var(--line);
     border-radius: 10px;
     padding: 10px 16px;
     font-weight: 600;
     cursor: pointer;
     font-size: 0.95rem;
   }
-  button:hover { filter: brightness(1.08); }
+  button:hover { border-color: var(--accent); }
 
   h2 { font-size: 1.2rem; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
 
@@ -170,6 +174,11 @@
   <h1>Harcama Takip</h1>
   <p class="sub">Günlük harcamalarını kategoriye göre ekle, toplamını gör. Veriler sadece bu tarayıcıda, kendi cihazında saklanıyor.</p>
 
+  <div class="filter-row">
+    <label for="month-filter" class="filter-label">Ay:</label>
+    <select id="month-filter"><option value="all">Tümü</option></select>
+  </div>
+
   <div class="summary">
     <div>
       <div class="label">Toplam harcama</div>
@@ -196,6 +205,9 @@
       <option value="Okul">Okul</option>
       <option value="Diğer">Diğer</option>
     </select>
+
+    <label for="date">Tarih</label>
+    <input id="date" type="date">
 
     <button type="submit">Ekle</button>
   </form>
@@ -226,6 +238,10 @@
   const totalEl = document.getElementById("total-amount");
   const countEl = document.getElementById("total-count");
   const breakdownEl = document.getElementById("breakdown");
+  const monthFilterEl = document.getElementById("month-filter");
+  const dateInput = document.getElementById("date");
+
+  dateInput.value = new Date().toISOString().slice(0, 10);
 
   function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
@@ -235,14 +251,40 @@
     return n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺";
   }
 
+  const MONTH_NAMES = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+
+  function monthKey(dateStr) {
+    return (dateStr || "").slice(0, 7); // "YYYY-MM"
+  }
+
+  function monthLabel(key) {
+    const [y, m] = key.split("-");
+    return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
+  }
+
+  function refreshMonthOptions() {
+    const keys = Array.from(new Set(expenses.map((e) => monthKey(e.date)).filter(Boolean))).sort().reverse();
+    const current = monthFilterEl.value;
+    monthFilterEl.innerHTML = '<option value="all">Tümü</option>' +
+      keys.map((k) => `<option value="${k}">${monthLabel(k)}</option>`).join("");
+    if (keys.includes(current)) monthFilterEl.value = current;
+  }
+
   function render() {
+    refreshMonthOptions();
+    const filter = monthFilterEl.value;
+    const visible = filter === "all" ? expenses : expenses.filter((e) => monthKey(e.date) === filter);
+
     listEl.innerHTML = "";
-    emptyEl.style.display = expenses.length ? "none" : "block";
+    emptyEl.style.display = visible.length ? "none" : "block";
+    emptyEl.textContent = expenses.length
+      ? "Bu ayda harcama yok."
+      : "Henüz harcama eklemedin. Yukarıdaki formdan ilk kaydını ekle.";
 
     let total = 0;
     const totalsByCategory = {};
 
-    expenses.forEach((exp) => {
+    [...visible].sort((a, b) => (b.date || "").localeCompare(a.date || "")).forEach((exp) => {
       total += exp.amount;
       totalsByCategory[exp.category] = (totalsByCategory[exp.category] || 0) + exp.amount;
 
@@ -251,7 +293,7 @@
       li.innerHTML = `
         <div class="info">
           <span class="desc">${exp.desc}</span>
-          <span class="cat"><span class="dot" style="background:${CATEGORY_COLORS[exp.category] || '#9aa8b8'}"></span>${exp.category}</span>
+          <span class="cat"><span class="dot" style="background:${CATEGORY_COLORS[exp.category] || '#9aa8b8'}"></span>${exp.category}${exp.date ? " · " + exp.date : ""}</span>
         </div>
         <div class="right">
           <span class="amount">${formatTL(exp.amount)}</span>
@@ -262,12 +304,12 @@
     });
 
     totalEl.textContent = formatTL(total);
-    countEl.textContent = expenses.length;
+    countEl.textContent = visible.length;
 
     breakdownEl.innerHTML = "";
     const categories = Object.keys(totalsByCategory);
     if (categories.length === 0) {
-      breakdownEl.innerHTML = '<p style="color:var(--muted); font-size:0.9rem;">Henüz veri yok.</p>';
+      breakdownEl.innerHTML = '<p style="color:var(--muted); font-size:0.9rem;">Bu seçim için veri yok.</p>';
     } else {
       categories.sort((a, b) => totalsByCategory[b] - totalsByCategory[a]);
       categories.forEach((cat) => {
@@ -289,14 +331,18 @@
     const desc = document.getElementById("desc").value.trim();
     const amount = parseFloat(document.getElementById("amount").value);
     const category = document.getElementById("category").value;
+    const date = dateInput.value || new Date().toISOString().slice(0, 10);
     if (!desc || isNaN(amount) || amount <= 0) return;
 
-    expenses.push({ id: Date.now(), desc, amount, category });
+    expenses.push({ id: Date.now(), desc, amount, category, date });
     save();
     render();
     form.reset();
+    dateInput.value = new Date().toISOString().slice(0, 10);
     document.getElementById("desc").focus();
   });
+
+  monthFilterEl.addEventListener("change", render);
 
   listEl.addEventListener("click", (e) => {
     const btn = e.target.closest(".del");
