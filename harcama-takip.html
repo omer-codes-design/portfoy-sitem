@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harcama Takip — Ömer</title>
+<style>
+  :root {
+    --bg: #0b0f14;
+    --bg-soft: #121821;
+    --card: #161e28;
+    --line: #243041;
+    --text: #e8eef6;
+    --muted: #9aa8b8;
+    --accent: #7dd3c0;
+    --accent-2: #8ab4f8;
+    --danger: #e08585;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(900px 400px at 10% -10%, rgba(125, 211, 192, 0.12), transparent 50%),
+      radial-gradient(700px 360px at 100% 0%, rgba(138, 180, 248, 0.1), transparent 45%);
+    z-index: -1;
+  }
+  header {
+    border-bottom: 1px solid var(--line);
+    padding: 16px 24px;
+  }
+  header nav {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  main { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+  .eyebrow { color: var(--accent); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  h1 { font-size: 2rem; margin-bottom: 8px; }
+  .sub { color: var(--muted); margin-bottom: 32px; max-width: 55ch; }
+
+  .summary {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .summary .label { color: var(--muted); font-size: 0.9rem; }
+  .summary .amount { font-size: 2rem; font-weight: 700; }
+  .summary .amount.total { color: var(--accent); }
+
+  form {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 10px;
+  }
+  form label { display: none; }
+  input, select {
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button {
+    background: var(--accent);
+    color: #0b0f14;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  button:hover { filter: brightness(1.08); }
+
+  h2 { font-size: 1.2rem; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+
+  .expense-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 40px; }
+  .expense-item {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .expense-item .info { display: flex; flex-direction: column; gap: 2px; }
+  .expense-item .desc { font-weight: 600; }
+  .expense-item .cat {
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+  .expense-item .right { display: flex; align-items: center; gap: 14px; }
+  .expense-item .amount { font-weight: 700; }
+  .expense-item .del {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--danger);
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    padding: 0;
+    font-size: 0.9rem;
+  }
+  .expense-item .del:hover { border-color: var(--danger); }
+
+  .empty-state {
+    color: var(--muted);
+    text-align: center;
+    padding: 30px;
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    margin-bottom: 40px;
+  }
+
+  .breakdown { display: flex; flex-direction: column; gap: 12px; }
+  .bar-row { display: grid; grid-template-columns: 90px 1fr 70px; align-items: center; gap: 12px; font-size: 0.9rem; }
+  .bar-track { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 999px; height: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; }
+
+  @media (max-width: 560px) {
+    form { grid-template-columns: 1fr 1fr; }
+    form button { grid-column: span 2; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <span style="color:var(--muted); font-size:0.9rem;">Ömer — Proje</span>
+    <a href="index.html">← Portföye dön</a>
+  </nav>
+</header>
+
+<main>
+  <p class="eyebrow">Mini proje</p>
+  <h1>Harcama Takip</h1>
+  <p class="sub">Günlük harcamalarını kategoriye göre ekle, toplamını gör. Veriler sadece bu tarayıcıda, kendi cihazında saklanıyor.</p>
+
+  <div class="summary">
+    <div>
+      <div class="label">Toplam harcama</div>
+      <div class="amount total" id="total-amount">0 ₺</div>
+    </div>
+    <div>
+      <div class="label">Kayıt sayısı</div>
+      <div class="amount" id="total-count">0</div>
+    </div>
+  </div>
+
+  <form id="expense-form">
+    <label for="desc">Açıklama</label>
+    <input id="desc" type="text" placeholder="Örn: Otobüs bileti" required>
+
+    <label for="amount">Tutar</label>
+    <input id="amount" type="number" placeholder="Tutar (₺)" min="0" step="0.01" required>
+
+    <label for="category">Kategori</label>
+    <select id="category">
+      <option value="Yiyecek">Yiyecek</option>
+      <option value="Ulaşım">Ulaşım</option>
+      <option value="Eğlence">Eğlence</option>
+      <option value="Okul">Okul</option>
+      <option value="Diğer">Diğer</option>
+    </select>
+
+    <button type="submit">Ekle</button>
+  </form>
+
+  <h2>Harcamalar</h2>
+  <ul class="expense-list" id="expense-list"></ul>
+  <div class="empty-state" id="empty-state">Henüz harcama eklemedin. Yukarıdaki formdan ilk kaydını ekle.</div>
+
+  <h2>Kategoriye göre dağılım</h2>
+  <div class="breakdown" id="breakdown"></div>
+</main>
+
+<script>
+  const CATEGORY_COLORS = {
+    "Yiyecek": "#7dd3c0",
+    "Ulaşım": "#8ab4f8",
+    "Eğlence": "#e0b46a",
+    "Okul": "#c792ea",
+    "Diğer": "#9aa8b8"
+  };
+
+  const STORAGE_KEY = "omer-harcama-takip";
+  let expenses = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+  const form = document.getElementById("expense-form");
+  const listEl = document.getElementById("expense-list");
+  const emptyEl = document.getElementById("empty-state");
+  const totalEl = document.getElementById("total-amount");
+  const countEl = document.getElementById("total-count");
+  const breakdownEl = document.getElementById("breakdown");
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
+  }
+
+  function formatTL(n) {
+    return n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺";
+  }
+
+  function render() {
+    listEl.innerHTML = "";
+    emptyEl.style.display = expenses.length ? "none" : "block";
+
+    let total = 0;
+    const totalsByCategory = {};
+
+    expenses.forEach((exp) => {
+      total += exp.amount;
+      totalsByCategory[exp.category] = (totalsByCategory[exp.category] || 0) + exp.amount;
+
+      const li = document.createElement("li");
+      li.className = "expense-item";
+      li.innerHTML = `
+        <div class="info">
+          <span class="desc">${exp.desc}</span>
+          <span class="cat"><span class="dot" style="background:${CATEGORY_COLORS[exp.category] || '#9aa8b8'}"></span>${exp.category}</span>
+        </div>
+        <div class="right">
+          <span class="amount">${formatTL(exp.amount)}</span>
+          <button class="del" title="Sil" data-id="${exp.id}">✕</button>
+        </div>
+      `;
+      listEl.appendChild(li);
+    });
+
+    totalEl.textContent = formatTL(total);
+    countEl.textContent = expenses.length;
+
+    breakdownEl.innerHTML = "";
+    const categories = Object.keys(totalsByCategory);
+    if (categories.length === 0) {
+      breakdownEl.innerHTML = '<p style="color:var(--muted); font-size:0.9rem;">Henüz veri yok.</p>';
+    } else {
+      categories.sort((a, b) => totalsByCategory[b] - totalsByCategory[a]);
+      categories.forEach((cat) => {
+        const pct = total > 0 ? Math.round((totalsByCategory[cat] / total) * 100) : 0;
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        row.innerHTML = `
+          <span>${cat}</span>
+          <span class="bar-track"><span class="bar-fill" style="width:${pct}%; background:${CATEGORY_COLORS[cat] || '#9aa8b8'}"></span></span>
+          <span>${pct}%</span>
+        `;
+        breakdownEl.appendChild(row);
+      });
+    }
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const desc = document.getElementById("desc").value.trim();
+    const amount = parseFloat(document.getElementById("amount").value);
+    const category = document.getElementById("category").value;
+    if (!desc || isNaN(amount) || amount <= 0) return;
+
+    expenses.push({ id: Date.now(), desc, amount, category });
+    save();
+    render();
+    form.reset();
+    document.getElementById("desc").focus();
+  });
+
+  listEl.addEventListener("click", (e) => {
+    const btn = e.target.closest(".del");
+    if (!btn) return;
+    const id = Number(btn.getAttribute("data-id"));
+    expenses = expenses.filter((exp) => exp.id !== id);
+    save();
+    render();
+  });
+
+  render();
+</script>
+
+</body>
+</html>
