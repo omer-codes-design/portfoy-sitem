@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ömer — Portföy</title>
+<title>Harcama Takip — Ömer</title>
 <style>
   :root {
     --bg: #0b0f14;
@@ -14,28 +14,15 @@
     --muted: #9aa8b8;
     --accent: #7dd3c0;
     --accent-2: #8ab4f8;
+    --danger: #e08585;
   }
-
-  [data-theme="light"] {
-    --bg: #f6f7f4;
-    --bg-soft: #eceee8;
-    --card: #ffffff;
-    --line: #dde1d9;
-    --text: #1b2430;
-    --muted: #5c6773;
-    --accent: #1f8f78;
-    --accent-2: #3568c4;
-  }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
   body {
     font-family: "Segoe UI", system-ui, sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
-    transition: background 0.25s ease, color 0.25s ease;
   }
   body::before {
     content: "";
@@ -48,103 +35,128 @@
     z-index: -1;
   }
   header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    backdrop-filter: blur(12px);
-    background: rgba(11, 15, 20, 0.75);
     border-bottom: 1px solid var(--line);
-  }
-  [data-theme="light"] header { background: rgba(246, 247, 244, 0.8); }
-  nav {
-    max-width: 920px;
-    margin: 0 auto;
     padding: 16px 24px;
+  }
+  header nav {
+    max-width: 720px;
+    margin: 0 auto;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    align-items: center;
   }
-  .logo { font-weight: 700; letter-spacing: 0.04em; color: var(--accent); text-decoration: none; }
-  nav ul { list-style: none; display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
-  nav a { color: var(--muted); text-decoration: none; font-size: 0.95rem; }
-  nav a:hover { color: var(--text); }
+  header a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+  main { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+  .eyebrow { color: var(--accent); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  h1 { font-size: 2rem; margin-bottom: 8px; }
+  .sub { color: var(--muted); margin-bottom: 32px; max-width: 55ch; }
 
-  #theme-toggle {
-    background: var(--bg-soft);
+  .filter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .filter-label { color: var(--muted); font-size: 0.9rem; }
+  #month-filter { min-width: 160px; }
+
+  .summary {
+    background: var(--card);
     border: 1px solid var(--line);
-    color: var(--text);
-    border-radius: 999px;
-    width: 34px;
-    height: 34px;
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-    font-size: 1rem;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 10px;
   }
-  #theme-toggle:hover { border-color: var(--accent); }
+  .summary .label { color: var(--muted); font-size: 0.9rem; }
+  .summary .amount { font-size: 2rem; font-weight: 700; }
+  .summary .amount.total { color: var(--accent); }
 
-  main { max-width: 920px; margin: 0 auto; padding: 48px 24px 80px; }
-  .hero { padding: 48px 0 32px; }
-  .eyebrow { color: var(--accent); font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
-  h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.15; margin-bottom: 16px; }
-  .lead { max-width: 58ch; color: var(--muted); font-size: 1.08rem; }
-
-  section { margin-top: 56px; }
-  h2 { font-size: 1.5rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
-
-  .hobbies { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
-  .card {
+  form {
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: 16px;
     padding: 20px;
-  }
-  .card .icon { width: 28px; height: 28px; margin-bottom: 12px; color: var(--accent); }
-  .card h3 { font-size: 1.05rem; margin-bottom: 8px; }
-  .card p { color: var(--muted); font-size: 0.95rem; }
-
-  .projects { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-  .project-card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
     gap: 10px;
   }
-  .project-card .tag {
-    align-self: flex-start;
-    font-size: 0.75rem;
+  form label { display: none; }
+  input, select {
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button {
+    background: var(--bg-soft);
     color: var(--accent);
     border: 1px solid var(--line);
-    padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
   }
-  .project-card h3 { font-size: 1.1rem; }
-  .project-card p { color: var(--muted); font-size: 0.95rem; }
-  .project-card a { color: var(--accent-2); text-decoration: none; font-size: 0.9rem; margin-top: auto; }
-  .project-card a:hover { text-decoration: underline; }
+  button:hover { border-color: var(--accent); }
 
-  .empty {
-    background: var(--bg-soft);
+  h2 { font-size: 1.2rem; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+
+  .expense-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 40px; }
+  .expense-item {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .expense-item .info { display: flex; flex-direction: column; gap: 2px; }
+  .expense-item .desc { font-weight: 600; }
+  .expense-item .cat {
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+  .expense-item .right { display: flex; align-items: center; gap: 14px; }
+  .expense-item .amount { font-weight: 700; }
+  .expense-item .del {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--danger);
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    padding: 0;
+    font-size: 0.9rem;
+  }
+  .expense-item .del:hover { border-color: var(--danger); }
+
+  .empty-state {
+    color: var(--muted);
+    text-align: center;
+    padding: 30px;
     border: 1px dashed var(--line);
-    border-radius: 16px;
-    padding: 40px 24px;
-    text-align: center;
-    color: var(--muted);
+    border-radius: 14px;
+    margin-bottom: 40px;
   }
 
-  .contact a { color: var(--accent-2); text-decoration: none; }
-  .contact a:hover { text-decoration: underline; }
+  .breakdown { display: flex; flex-direction: column; gap: 12px; }
+  .bar-row { display: grid; grid-template-columns: 90px 1fr 70px; align-items: center; gap: 12px; font-size: 0.9rem; }
+  .bar-track { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 999px; height: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; }
 
-  footer {
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.85rem;
-    padding: 24px;
-    border-top: 1px solid var(--line);
+  @media (max-width: 560px) {
+    form { grid-template-columns: 1fr 1fr; }
+    form button { grid-column: span 2; }
   }
 </style>
 </head>
@@ -152,94 +164,196 @@
 
 <header>
   <nav>
-    <a class="logo" href="#hakkimda">ÖMER</a>
-    <ul>
-      <li><a href="#hakkimda">Hakkımda</a></li>
-      <li><a href="#hobiler">Hobiler</a></li>
-      <li><a href="#projeler">Projeler</a></li>
-      <li><a href="#iletisim">İletişim</a></li>
-      <li><button id="theme-toggle" aria-label="Temayı değiştir" title="Temayı değiştir">🌙</button></li>
-    </ul>
+    <span style="color:var(--muted); font-size:0.9rem;">Ömer — Proje</span>
+    <a href="index.html">← Portföye dön</a>
   </nav>
 </header>
 
 <main>
-  <section class="hero" id="hakkimda">
-    <p class="eyebrow">Kişisel portföy</p>
-    <h1>Merhaba, ben Ömer.</h1>
-    <p class="lead">
-      13 yaşında bir öğrenciyim. Web tasarımına yeni başladım ve bu sayfa
-      ilk sitem. Kod yazmayı öğrenmeyi, yeni şeyler denemeyi ve kendi
-      projelerimi buraya koymayı hedefliyorum.
-    </p>
-  </section>
+  <p class="eyebrow">Mini proje</p>
+  <h1>Harcama Takip</h1>
+  <p class="sub">Günlük harcamalarını kategoriye göre ekle, toplamını gör. Veriler sadece bu tarayıcıda, kendi cihazında saklanıyor.</p>
 
-  <section id="hobiler">
-    <h2>Hobilerim</h2>
-    <div class="hobbies">
-      <article class="card">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-        <h3>Kod yazmak</h3>
-        <p>HTML ve CSS ile küçük sayfalar kurmayı seviyorum.</p>
-      </article>
-      <article class="card">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 5V3m8 2V3M2 11h20"/><circle cx="8" cy="16" r="1.2" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.2" fill="currentColor" stroke="none"/></svg>
-        <h3>Oyun oynamak</h3>
-        <p>Boş zamanlarımda strateji ve macera oyunları oynuyorum.</p>
-      </article>
-      <article class="card">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-        <h3>Müzik dinlemek</h3>
-        <p>Ders çalışırken ve proje yaparken müzik açık olur.</p>
-      </article>
+  <div class="filter-row">
+    <label for="month-filter" class="filter-label">Ay:</label>
+    <select id="month-filter"><option value="all">Tümü</option></select>
+  </div>
+
+  <div class="summary">
+    <div>
+      <div class="label">Toplam harcama</div>
+      <div class="amount total" id="total-amount">0 ₺</div>
     </div>
-  </section>
-
-  <section id="projeler">
-    <h2>Projelerim</h2>
-    <div class="projects">
-      <article class="project-card">
-        <span class="tag">Proje 1</span>
-        <h3>Bu portföy sitesi</h3>
-        <p>HTML ve CSS ile sıfırdan kurduğum ilk sitem — Cursor kullanarak adım adım öğrenerek geliştirdim.</p>
-        <a href="https://github.com/arslannomer34-del/portfoy-sitem" target="_blank" rel="noopener">Koda bak →</a>
-      </article>
-      <article class="project-card">
-        <span class="tag">Proje 2</span>
-        <h3>Harcama Takip</h3>
-        <p>Günlük harcamalarını kategoriye göre ekleyip toplamını ve dağılımını görebildiğin mini bir web uygulaması.</p>
-        <a href="harcama-takip.html">Git →</a>
-      </article>
+    <div>
+      <div class="label">Kayıt sayısı</div>
+      <div class="amount" id="total-count">0</div>
     </div>
-  </section>
+  </div>
 
-  <section id="iletisim" class="contact">
-    <h2>İletişim</h2>
-    <p class="lead">
-      Bana yazmak istersen:
-      <a href="mailto:omer.portfoy@example.com">omer.portfoy@example.com</a>
-    </p>
-  </section>
+  <form id="expense-form">
+    <label for="desc">Açıklama</label>
+    <input id="desc" type="text" placeholder="Örn: Otobüs bileti" required>
+
+    <label for="amount">Tutar</label>
+    <input id="amount" type="number" placeholder="Tutar (₺)" min="0" step="0.01" required>
+
+    <label for="category">Kategori</label>
+    <select id="category">
+      <option value="Yiyecek">Yiyecek</option>
+      <option value="Ulaşım">Ulaşım</option>
+      <option value="Eğlence">Eğlence</option>
+      <option value="Okul">Okul</option>
+      <option value="Diğer">Diğer</option>
+    </select>
+
+    <label for="date">Tarih</label>
+    <input id="date" type="date">
+
+    <button type="submit">Ekle</button>
+  </form>
+
+  <h2>Harcamalar</h2>
+  <ul class="expense-list" id="expense-list"></ul>
+  <div class="empty-state" id="empty-state">Henüz harcama eklemedin. Yukarıdaki formdan ilk kaydını ekle.</div>
+
+  <h2>Kategoriye göre dağılım</h2>
+  <div class="breakdown" id="breakdown"></div>
 </main>
 
-<footer>
-  © 2026 Ömer — İlk web sitem
-</footer>
-
 <script>
-  const toggle = document.getElementById('theme-toggle');
-  const root = document.documentElement;
-  toggle.addEventListener('click', () => {
-    const isLight = root.getAttribute('data-theme') === 'light';
-    if (isLight) {
-      root.removeAttribute('data-theme');
-      toggle.textContent = '🌙';
+  const CATEGORY_COLORS = {
+    "Yiyecek": "#7dd3c0",
+    "Ulaşım": "#8ab4f8",
+    "Eğlence": "#e0b46a",
+    "Okul": "#c792ea",
+    "Diğer": "#9aa8b8"
+  };
+
+  const STORAGE_KEY = "omer-harcama-takip";
+  let expenses = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+  const form = document.getElementById("expense-form");
+  const listEl = document.getElementById("expense-list");
+  const emptyEl = document.getElementById("empty-state");
+  const totalEl = document.getElementById("total-amount");
+  const countEl = document.getElementById("total-count");
+  const breakdownEl = document.getElementById("breakdown");
+  const monthFilterEl = document.getElementById("month-filter");
+  const dateInput = document.getElementById("date");
+
+  dateInput.value = new Date().toISOString().slice(0, 10);
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
+  }
+
+  function formatTL(n) {
+    return n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺";
+  }
+
+  const MONTH_NAMES = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+
+  function monthKey(dateStr) {
+    return (dateStr || "").slice(0, 7); // "YYYY-MM"
+  }
+
+  function monthLabel(key) {
+    const [y, m] = key.split("-");
+    return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
+  }
+
+  function refreshMonthOptions() {
+    const keys = Array.from(new Set(expenses.map((e) => monthKey(e.date)).filter(Boolean))).sort().reverse();
+    const current = monthFilterEl.value;
+    monthFilterEl.innerHTML = '<option value="all">Tümü</option>' +
+      keys.map((k) => `<option value="${k}">${monthLabel(k)}</option>`).join("");
+    if (keys.includes(current)) monthFilterEl.value = current;
+  }
+
+  function render() {
+    refreshMonthOptions();
+    const filter = monthFilterEl.value;
+    const visible = filter === "all" ? expenses : expenses.filter((e) => monthKey(e.date) === filter);
+
+    listEl.innerHTML = "";
+    emptyEl.style.display = visible.length ? "none" : "block";
+    emptyEl.textContent = expenses.length
+      ? "Bu ayda harcama yok."
+      : "Henüz harcama eklemedin. Yukarıdaki formdan ilk kaydını ekle.";
+
+    let total = 0;
+    const totalsByCategory = {};
+
+    [...visible].sort((a, b) => (b.date || "").localeCompare(a.date || "")).forEach((exp) => {
+      total += exp.amount;
+      totalsByCategory[exp.category] = (totalsByCategory[exp.category] || 0) + exp.amount;
+
+      const li = document.createElement("li");
+      li.className = "expense-item";
+      li.innerHTML = `
+        <div class="info">
+          <span class="desc">${exp.desc}</span>
+          <span class="cat"><span class="dot" style="background:${CATEGORY_COLORS[exp.category] || '#9aa8b8'}"></span>${exp.category}${exp.date ? " · " + exp.date : ""}</span>
+        </div>
+        <div class="right">
+          <span class="amount">${formatTL(exp.amount)}</span>
+          <button class="del" title="Sil" data-id="${exp.id}">✕</button>
+        </div>
+      `;
+      listEl.appendChild(li);
+    });
+
+    totalEl.textContent = formatTL(total);
+    countEl.textContent = visible.length;
+
+    breakdownEl.innerHTML = "";
+    const categories = Object.keys(totalsByCategory);
+    if (categories.length === 0) {
+      breakdownEl.innerHTML = '<p style="color:var(--muted); font-size:0.9rem;">Bu seçim için veri yok.</p>';
     } else {
-      root.setAttribute('data-theme', 'light');
-      toggle.textContent = '☀️';
+      categories.sort((a, b) => totalsByCategory[b] - totalsByCategory[a]);
+      categories.forEach((cat) => {
+        const pct = total > 0 ? Math.round((totalsByCategory[cat] / total) * 100) : 0;
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        row.innerHTML = `
+          <span>${cat}</span>
+          <span class="bar-track"><span class="bar-fill" style="width:${pct}%; background:${CATEGORY_COLORS[cat] || '#9aa8b8'}"></span></span>
+          <span>${pct}%</span>
+        `;
+        breakdownEl.appendChild(row);
+      });
     }
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const desc = document.getElementById("desc").value.trim();
+    const amount = parseFloat(document.getElementById("amount").value);
+    const category = document.getElementById("category").value;
+    const date = dateInput.value || new Date().toISOString().slice(0, 10);
+    if (!desc || isNaN(amount) || amount <= 0) return;
+
+    expenses.push({ id: Date.now(), desc, amount, category, date });
+    save();
+    render();
+    form.reset();
+    dateInput.value = new Date().toISOString().slice(0, 10);
+    document.getElementById("desc").focus();
   });
 
+  monthFilterEl.addEventListener("change", render);
+
+  listEl.addEventListener("click", (e) => {
+    const btn = e.target.closest(".del");
+    if (!btn) return;
+    const id = Number(btn.getAttribute("data-id"));
+    expenses = expenses.filter((exp) => exp.id !== id);
+    save();
+    render();
+  });
+
+  render();
 </script>
 
 </body>
